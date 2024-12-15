@@ -1,0 +1,223 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/cb792c0850.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <style>
+        /* Global styles */
+        body {
+            background: linear-gradient(135deg, #050505, #0b0f17, #141f2b);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        a {
+            text-decoration: none;
+            color: #00c9ff;
+            transition: color 0.3s ease-in-out;
+        }
+
+        a:hover {
+            color: #00ff9f;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(90deg, #1e3c72, #2a5298); /* Updated navbar color */
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .navbar:hover {
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+        }
+
+        .navbar .profile-pic {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border: 2px solid #00c9ff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00c9ff;
+            transition: all 0.3s;
+        }
+
+        .navbar .profile-pic:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .nav-link {
+            font-size: 1.1rem;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            color: #00ff9f;
+            text-shadow: 0 0 10px #00ff9f;
+        }
+
+        .nav-link.active {
+            color: #00ff9f;
+        }
+
+        .nav-link i {
+            margin-right: 10px;
+            transition: transform 0.3s;
+        }
+
+        .nav-link:hover i {
+            transform: rotate(360deg);
+        }
+
+        /* Post Cards */
+        .post-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .post-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 0 20px #00c9ff;
+        }
+
+        .post-image {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        .btn-like {
+            background: #ff6347; /* Updated button color */
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            transition: all 0.3s;
+        }
+
+        .btn-like:hover {
+            box-shadow: 0 0 15px #ff6347; /* Updated button hover shadow color */
+            transform: scale(1.1);
+        }
+
+        /* Footer */
+        footer {
+            background: #141f2b;
+            color: #00c9ff;
+            text-align: center;
+            padding: 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        footer a {
+            color: #00c9ff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #00ff9f;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg p-3">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/"><img src="{{profile.profileimg.url}}" alt="Profile Picture" class="profile-pic"></a>
+            <span class="navbar-text text-white ms-2" style="font-size: 1.3rem;">Hi,<b> {{profile.user.username}}</b>..!</span> 
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="fa-solid fa-house"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/explore"><i class="fa-solid fa-compass"></i> Explore</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal3"><i class="fa-solid fa-magnifying-glass"></i> Search</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-circle-plus"></i> Create Post</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile/{{user}}"><i class="fa-solid fa-user"></i> Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logoutt"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main role="main" class="container mt-5">
+        {% include "modal.html" %}
+        {% include "search.html" %}
+
+        <!-- Posts -->
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for pos in post %}
+            <div class="col">
+                <div class="post-card mt-4">
+                    {% if pos.image %}
+                        <img src="{{pos.image.url}}" alt="Post Image" class="post-image">
+                    {% endif %}
+                    <div class="p-3">
+                        <h5><a href="/profile/{{pos.user}}">@{{pos.user}}</a></h5>
+                        {% if pos.caption %}
+                            <p>{{pos.caption}}</p>
+                        {% endif %}
+                        <p style="color: #fff;" class="text-muted">{{pos.created_at}}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="/like-post/{{pos.id}}" class="btn btn-like">Like</a>
+                            <p>{{pos.no_of_likes}} Like{{pos.no_of_likes|pluralize}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <footer>
+        <p>Explore more at <a href="/explore">Explore</a></p>
+    </footer>
+
+    <script src="{% static 'js/app.js'%}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+
+</html>
