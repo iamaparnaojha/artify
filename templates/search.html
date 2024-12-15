@@ -1,0 +1,38 @@
+<!-- !-- Button trigger modal -->
+{% load static %}
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal3" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(8px); border-radius: 15px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);">
+            <div class="modal-header d-flex align-content-center justify-content-center">
+                <div class="w-100">
+                    <form method="get" action="{% url 'search_results' %}">
+                        <div class="input-group rounded">
+                            <input id="search" type="text" name="q" placeholder="Search users and posts" 
+                                class="form-control rounded" 
+                                style="color: #fff; background: rgba(255, 255, 255, 0.1);" 
+                                aria-label="Search" aria-describedby="search-addon" required />
+                            <style>
+                                #search::placeholder {
+                                    color: rgba(255, 255, 255, 0.7) !important;
+                                }
+                                .input-group-text {
+                                    background: rgba(255, 255, 255, 0.1);
+                                    border: none;
+                                    cursor: pointer;
+                                }
+                                .input-group-text i {
+                                    color: #fff;
+                                }
+                            </style>
+                            <button type="submit" class="input-group-text" id="search-addon">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

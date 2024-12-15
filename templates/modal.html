@@ -1,0 +1,67 @@
+{% load static %}
+<style>
+    .modal-content {
+        background: #1e1e1e !important;
+        color: #fff;
+    }
+    .modal-header {
+        border-bottom: 1px solid #2c2c2c;
+    }
+    .modal-footer {
+        border-top: 1px solid #2c2c2c;
+    }
+    .form-control {
+        background: #2c2c2c;
+        border: none;
+        color: #fff;
+    }
+    .form-control:focus {
+        background: #333;
+        color: #fff;
+        box-shadow: 0 0 0 0.25rem rgba(0, 201, 255, 0.25);
+    }
+    .btn-primary {
+        background: linear-gradient(90deg, #00c9ff, #00ff9f);
+        border: none;
+        color: #000;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(90deg, #00ff9f, #00c9ff);
+        color: #000;
+    }
+    .btn-secondary {
+        background: #2c2c2c;
+        border: none;
+    }
+    .btn-secondary:hover {
+        background: #333;
+    }
+</style>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">New Post</h1>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/upload" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <img src="{% static 'css/upload.png' %}" alt="" class="m-1">
+                        <label for="recipient-name" class="col-form-label">Photo</label>
+                        <input type="file" name="image_upload" class="form-control" id="recipient-name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="message-text" class="col-form-label">Caption</label>
+                        <textarea class="form-control" name="caption" placeholder="Caption..." id="message-text"></textarea>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Create Post</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
