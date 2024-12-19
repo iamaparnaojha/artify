@@ -1,14 +1,12 @@
 from itertools import chain
-from  django . shortcuts  import  get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from . models import  Followers, LikePost, Post, Profile
+from .models import Followers, LikePost, Post, Profile, Story
 from django.db.models import Q
-
-
-
+from django.utils import timezone
 
 def signup(request):
  try:
@@ -68,21 +66,41 @@ def logoutt(request):
 
 @login_required(login_url='/loginn')
 def home(request):
+    user_object = User.objects.get(username=request.user.username)
+    user_profile = Profile.objects.get(user=user_object)
     
-    following_users = Followers.objects.filter(follower=request.user.username).values_list('user', flat=True)
-
+    # Get user feed posts
+    user_following_list = []
+    feed = []
     
-    post = Post.objects.filter(Q(user=request.user.username) | Q(user__in=following_users)).order_by('-created_at')
+    user_following = Followers.objects.filter(follower=request.user.username)
+    
+    for users in user_following:
+        user_following_list.append(users.user)
+    
+    for usernames in user_following_list:
+        feed_lists = Post.objects.filter(user=usernames)
+        feed.append(feed_lists)
+    
+    feed_list = list(chain(*feed))
 
-    profile = Profile.objects.get(user=request.user)
-
+    # Get stories from followed users and self
+    following_users = [user.user for user in user_following]
+    following_users.append(request.user.username)
+    
+    stories = Story.objects.filter(
+        user__username__in=following_users,
+        expires_at__gt=timezone.now()
+    ).order_by('-created_at')
+    
     context = {
-        'post': post,
-        'profile': profile,
+        'user_profile': user_profile,
+        'posts': feed_list,
+        'stories': stories,
+        'profile': user_profile,  # For navbar profile picture
     }
-    return render(request, 'main.html',context)
     
-
+    return render(request, 'main.html', context)
 
 @login_required(login_url='/loginn')
 def upload(request):
@@ -246,3 +264,19 @@ def follow(request):
             return redirect('/profile/'+user)
     else:
         return redirect('/')
+
+@login_required(login_url='/loginn')
+def upload_story(request):
+    if request.method == 'POST':
+        user = request.user
+        image = request.FILES.get('story_image')
+        
+        if image:
+            story = Story.objects.create(
+                user=user,
+                image=image
+            )
+            story.save()
+            
+        return redirect('/')
+    return redirect('/')

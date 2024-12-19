@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -16,6 +17,24 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+class Story(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='story_images')
+    created_at = models.DateTimeField(default=timezone.now)
+    expires_at = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = self.created_at + timedelta(hours=24)
+        super().save(*args, **kwargs)
+
+    def is_expired(self):
+        return timezone.now() >= self.expires_at
+
+    def __str__(self):
+        return f"{self.user.username}'s story - {self.created_at}"
 
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
@@ -41,6 +60,3 @@ class Followers(models.Model):
 
     def __str__(self):
         return self.user
-
-    
-    

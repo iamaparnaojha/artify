@@ -15,12 +15,22 @@
             height: 100vh;
             margin: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow-x: hidden;
             scroll-behavior: smooth;
         }
-
+    
+        .welcome-heading {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00c9ff;
+            margin-bottom: 30px; /* Reduced spacing below heading */
+            margin-top: 20px; /* Slight spacing from top */
+        }
+    
         .login-container {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
@@ -32,24 +42,24 @@
             box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
             position: relative;
         }
-
+    
         .login-container img {
             width: 80px;
             height: 80px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 50%;
             position: absolute;
-            top: -40px;
+            top: -30px; /* Push the image slightly down */
             left: 50%;
             transform: translateX(-50%);
             border: 5px solid rgba(255, 255, 255, 0.05);
         }
-
+    
         .login-container h2 {
-            margin: 60px 0 20px;
+            margin: 70px 0 20px; /* Adjusted spacing for heading */
             font-weight: bold;
         }
-
+    
         .form-control {
             background: #333;
             border: none;
@@ -61,17 +71,7 @@
             box-shadow: none;
             transition: all 0.3s ease-in-out;
         }
-
-        .form-control::placeholder {
-            color: #fff;
-        }
-
-        .form-control:focus {
-            background: #444;
-            outline: none;
-            box-shadow: 0 0 10px rgba(0, 193, 133, 0.8);
-        }
-
+    
         .btn-submit {
             background: linear-gradient(90deg, #00c9ff, #00ff9f);
             color: #000;
@@ -81,31 +81,28 @@
             font-size: 16px;
             transition: all 0.3s ease-in-out;
         }
-
-        .btn-submit:hover {
-            box-shadow: 0 0 20px #00c9ff;
-            transform: scale(1.05);
-        }
-
-        a {
-            color: #00c9ff;
-            text-decoration: none;
-            transition: color 0.3s ease-in-out;
-        }
-
-        a:hover {
-            color: #00ff9f;
-            text-decoration: underline;
-        }
-
-        .forgot-password {
-            margin-top: 10px;
-            font-size: 13px;
+    
+        @media (max-width: 576px) {
+            .welcome-heading {
+                font-size: 1.5rem;
+                margin-top: 10px;
+            }
+    
+            .login-container img {
+                top: -20px; /* Adjust image for smaller screens */
+            }
         }
     </style>
+    
 </head>
 
 <body>
+    <!-- Welcome Heading -->
+    <div class="welcome-heading">
+        Welcome to <span style="color: #00ff9f;">Artify</span>
+    </div>
+
+    <!-- Login Form Container -->
     <div class="login-container">
         <img src="https://i.pinimg.com/236x/5b/8f/3d/5b8f3d9f30460aeedbe6a235e2d001d3.jpg" alt="User Avatar">
         <h2>Login</h2>
