@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container mt-5">
+        <h1>Send Message to {{ receiver.username }}</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="content">Message</label>
+                <textarea name="content" id="content" rows="5" class="form-control" 
+                          placeholder="Type your message here..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-success mt-3">Send Message</button>
+        </form>
+        <a href="{% url 'inbox' %}" class="btn btn-secondary mt-3">Back to Inbox</a>
+    </div>
+{% endblock %}

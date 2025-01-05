@@ -8,6 +8,7 @@ from .models import Followers, LikePost, Post, Profile, Story
 from django.db.models import Q
 from django.utils import timezone
 
+
 def signup(request):
  try:
     if request.method == 'POST':

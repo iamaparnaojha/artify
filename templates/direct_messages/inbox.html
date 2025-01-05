@@ -1,0 +1,222 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<div class="messages-container">
+    <div class="messages-sidebar">
+        <div class="search-container">
+            <input type="text" id="userSearch" placeholder="Search users..." class="search-input">
+            <div id="searchResults" class="search-results"></div>
+        </div>
+        
+        <div class="conversations-list">
+            {% for conversation in conversations %}
+                {% with other_user=conversation.participants.exclude.id=request.user.id.first %}
+                <a href="{% url 'messages:conversation' other_user.id %}" class="conversation-item {% if conversation.messages.last.is_read == False and conversation.messages.last.sender != request.user %}unread{% endif %}">
+                    <img src="{{ other_user.profile.profile_pic.url }}" alt="{{ other_user.username }}" class="user-avatar">
+                    <div class="conversation-info">
+                        <h3>{{ other_user.username }}</h3>
+                        {% with last_message=conversation.messages.last %}
+                            {% if last_message %}
+                                <p class="last-message">
+                                    {% if last_message.sender == request.user %}You: {% endif %}
+                                    {{ last_message.content|truncatechars:30 }}
+                                </p>
+                                <span class="message-time">{{ last_message.created_at|timesince }} ago</span>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </a>
+                {% endwith %}
+            {% empty %}
+                <p class="no-conversations">No conversations yet</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="messages-welcome">
+        <div class="welcome-content">
+            <i class="fas fa-comments welcome-icon"></i>
+            <h2>Welcome to Messages</h2>
+            <p>Select a conversation or search for users to start chatting</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .messages-container {
+        display: flex;
+        height: calc(100vh - 60px);
+        background: #fff;
+    }
+
+    .messages-sidebar {
+        width: 350px;
+        border-right: 1px solid #ddd;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .search-container {
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        font-size: 14px;
+    }
+
+    .search-results {
+        position: absolute;
+        background: white;
+        width: 320px;
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-top: 5px;
+        display: none;
+    }
+
+    .search-result-item {
+        padding: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-result-item:hover {
+        background: #f5f5f5;
+    }
+
+    .conversations-list {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .conversation-item {
+        display: flex;
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .conversation-item:hover {
+        background: #f8f9fa;
+    }
+
+    .conversation-item.unread {
+        background: #f0f6ff;
+    }
+
+    .user-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 15px;
+    }
+
+    .conversation-info {
+        flex: 1;
+    }
+
+    .conversation-info h3 {
+        margin: 0;
+        font-size: 16px;
+    }
+
+    .last-message {
+        color: #666;
+        font-size: 14px;
+        margin: 5px 0;
+    }
+
+    .message-time {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .messages-welcome {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+    }
+
+    .welcome-content {
+        text-align: center;
+        color: #666;
+    }
+
+    .welcome-icon {
+        font-size: 48px;
+        margin-bottom: 20px;
+        color: #e1306c;
+    }
+
+    .no-conversations {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('userSearch');
+    const searchResults = document.getElementById('searchResults');
+    let searchTimeout;
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim();
+        
+        if (query.length < 2) {
+            searchResults.style.display = 'none';
+            return;
+        }
+
+        searchTimeout = setTimeout(async () => {
+            try {
+                const response = await fetch(`/messages/search-users/?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (data.users.length > 0) {
+                    searchResults.innerHTML = data.users.map(user => `
+                        <a href="/messages/conversation/${user.id}/" class="search-result-item">
+                            <div>
+                                <div>${user.username}</div>
+                                ${user.name ? `<div class="text-sm text-gray-600">${user.name}</div>` : ''}
+                            </div>
+                        </a>
+                    `).join('');
+                    searchResults.style.display = 'block';
+                } else {
+                    searchResults.innerHTML = '<div class="p-3 text-center text-gray-500">No users found</div>';
+                    searchResults.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error searching users:', error);
+            }
+        }, 300);
+    });
+
+    // Hide search results when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchResults.contains(e.target) && e.target !== searchInput) {
+            searchResults.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

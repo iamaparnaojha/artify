@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="logoGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" style="stop-color:#833AB4"/>
+      <stop offset="50%" style="stop-color:#FD1D1D"/>
+      <stop offset="100%" style="stop-color:#FCB045"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Text "Artify" -->
+  <text x="10" y="28" font-family="Arial" font-weight="bold" font-size="24" fill="url(#logoGradient)">
+    Artify
+  </text>
+  
+  <!-- Camera icon -->
+  <g transform="translate(85, 10) scale(0.8)">
+    <rect x="0" y="0" width="24" height="20" rx="3" fill="url(#logoGradient)"/>
+    <circle cx="12" cy="10" r="5" fill="white"/>
+    <circle cx="12" cy="10" r="3" fill="url(#logoGradient)"/>
+  </g>
+</svg>

@@ -1,0 +1,146 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Stories -->
+<div class="stories-container">
+    <div class="stories-list">
+        <div class="story-item">
+            <div class="story-photo">
+                <img src="{{ profile.profileimg.url }}" alt="Your Story">
+            </div>
+            <div class="story-username">Your Story</div>
+        </div>
+        {% for story in stories %}
+        <div class="story-item">
+            <div class="story-photo">
+                <img src="{{ story.user.profile.profileimg.url }}" alt="{{ story.user.username }}'s Story">
+            </div>
+            <div class="story-username">{{ story.user.username }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Posts -->
+{% for post in posts %}
+<article class="post">
+    <div class="post-header">
+        <img src="{{ post.user.profile.profileimg.url }}" alt="{{ post.user.username }}" class="post-user-photo">
+        <a href="/profile/{{ post.user.username }}" class="post-user-name">{{ post.user.username }}</a>
+        <button class="post-more-options">•••</button>
+    </div>
+
+    <div class="post-image-container">
+        <img src="{{ post.image.url }}" alt="Post image" class="post-image">
+    </div>
+
+    <div class="post-actions">
+        <button class="post-action like-button" data-post-id="{{ post.id }}">
+            {% if post.is_liked %}
+            <i class="fas fa-heart" style="color: #ed4956;"></i>
+            {% else %}
+            <i class="far fa-heart"></i>
+            {% endif %}
+        </button>
+        <button class="post-action">
+            <i class="far fa-comment"></i>
+        </button>
+        <button class="post-action">
+            <i class="far fa-paper-plane"></i>
+        </button>
+        <button class="post-action post-save">
+            <i class="far fa-bookmark"></i>
+        </button>
+    </div>
+
+    <div class="post-likes">
+        {{ post.no_of_likes }} likes
+    </div>
+
+    {% if post.caption %}
+    <div class="post-caption">
+        <a href="/profile/{{ post.user.username }}" class="post-user-name">{{ post.user.username }}</a>
+        {{ post.caption }}
+    </div>
+    {% endif %}
+
+    {% if post.comments.all %}
+    <div class="post-comments">
+        <button>View all {{ post.comments.count }} comments</button>
+    </div>
+    {% endif %}
+
+    <div class="post-time">
+        {{ post.created_at|timesince }} ago
+    </div>
+</article>
+{% endfor %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Like button functionality
+    const likeButtons = document.querySelectorAll('.like-button');
+    likeButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            const postId = this.dataset.postId;
+            try {
+                const response = await fetch(`/like-post/${postId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    // Update like button appearance
+                    const icon = this.querySelector('i');
+                    if (data.liked) {
+                        icon.className = 'fas fa-heart';
+                        icon.style.color = '#ed4956';
+                    } else {
+                        icon.className = 'far fa-heart';
+                        icon.style.color = '#262626';
+                    }
+                    // Update like count
+                    const likesElement = this.closest('.post').querySelector('.post-likes');
+                    likesElement.textContent = `${data.likes} likes`;
+                }
+            } catch (error) {
+                console.error('Error liking post:', error);
+            }
+        });
+    });
+
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Story viewer functionality
+    const stories = document.querySelectorAll('.story-item');
+    stories.forEach(story => {
+        story.addEventListener('click', function() {
+            // Implement story viewing functionality
+            // This would typically open a fullscreen modal showing the story
+            // with progress bars at the top for multiple story items
+        });
+    });
+});
+</script>
+{% endblock %}

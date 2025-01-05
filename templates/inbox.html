@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container mt-5">
+        <h1>Inbox</h1>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h5 class="card-title">From: {{ message.sender.username }}</h5>
+                        <p class="card-text">{{ message.content }}</p>
+                        <p class="text-muted">{{ message.timestamp|date:"F d, Y H:i" }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No messages yet!</p>
+        {% endif %}
+        <a href="{% url 'home' %}" class="btn btn-primary">Back to Home</a>
+    </div>
+{% endblock %}

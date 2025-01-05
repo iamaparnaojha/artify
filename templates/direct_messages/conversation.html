@@ -1,0 +1,303 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<div class="conversation-container">
+    <div class="conversation-header">
+        <a href="{% url 'messages:inbox' %}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <img src="{{ other_user.profile.profile_pic.url }}" alt="{{ other_user.username }}" class="user-avatar">
+        <div class="user-info">
+            <h2>{{ other_user.username }}</h2>
+            <span class="online-status">
+                {% if other_user.profile.is_online %}Online{% else %}Offline{% endif %}
+            </span>
+        </div>
+    </div>
+
+    <div class="messages-list" id="messagesList">
+        {% for message in conversation.messages.all %}
+            <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+                {% if message.image %}
+                    <img src="{{ message.image.url }}" alt="Message image" class="message-image">
+                {% endif %}
+                {% if message.content %}
+                    <div class="message-content">{{ message.content }}</div>
+                {% endif %}
+                <div class="message-time">
+                    {{ message.created_at|date:"g:i A" }}
+                    {% if message.sender == request.user %}
+                        {% if message.is_read %}
+                            <span class="read-status">Read</span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <form id="messageForm" class="message-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="image-preview" id="imagePreview"></div>
+        <div class="input-container">
+            <label for="imageUpload" class="image-upload-btn">
+                <i class="fas fa-image"></i>
+            </label>
+            <input type="file" id="imageUpload" name="image" accept="image/*" style="display: none;">
+            <input type="text" name="content" placeholder="Type a message..." class="message-input">
+            <button type="submit" class="send-button">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .conversation-container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 60px);
+        background: #fff;
+    }
+
+    .conversation-header {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+        background: #fff;
+    }
+
+    .back-button {
+        margin-right: 15px;
+        color: #666;
+        text-decoration: none;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 15px;
+    }
+
+    .user-info h2 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .online-status {
+        font-size: 12px;
+        color: #666;
+    }
+
+    .messages-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f8f9fa;
+    }
+
+    .message {
+        max-width: 70%;
+        margin-bottom: 20px;
+        clear: both;
+    }
+
+    .message.sent {
+        float: right;
+    }
+
+    .message.received {
+        float: left;
+    }
+
+    .message-content {
+        padding: 10px 15px;
+        border-radius: 20px;
+        background: #e1306c;
+        color: white;
+        margin-bottom: 5px;
+    }
+
+    .message.received .message-content {
+        background: #f0f0f0;
+        color: #333;
+    }
+
+    .message-image {
+        max-width: 300px;
+        border-radius: 10px;
+        margin-bottom: 5px;
+    }
+
+    .message-time {
+        font-size: 12px;
+        color: #999;
+        text-align: right;
+    }
+
+    .read-status {
+        margin-left: 5px;
+        color: #666;
+    }
+
+    .message-form {
+        padding: 15px;
+        border-top: 1px solid #ddd;
+        background: #fff;
+    }
+
+    .input-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .image-upload-btn {
+        padding: 10px;
+        color: #666;
+        cursor: pointer;
+    }
+
+    .message-input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        margin: 0 10px;
+        font-size: 14px;
+    }
+
+    .send-button {
+        background: none;
+        border: none;
+        color: #e1306c;
+        cursor: pointer;
+        padding: 10px;
+    }
+
+    .image-preview {
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 10px 0;
+    }
+
+    .preview-image {
+        max-width: 100px;
+        max-height: 100px;
+        margin-right: 10px;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const messagesList = document.getElementById('messagesList');
+    const messageForm = document.getElementById('messageForm');
+    const imageUpload = document.getElementById('imageUpload');
+    const imagePreview = document.getElementById('imagePreview');
+
+    // Scroll to bottom of messages
+    function scrollToBottom() {
+        messagesList.scrollTop = messagesList.scrollHeight;
+    }
+    scrollToBottom();
+
+    // Handle image upload preview
+    imageUpload.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.innerHTML = `
+                    <img src="${e.target.result}" class="preview-image">
+                    <button type="button" class="remove-preview">&times;</button>
+                `;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Remove image preview
+    imagePreview.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-preview')) {
+            imagePreview.innerHTML = '';
+            imageUpload.value = '';
+        }
+    });
+
+    // Handle message submission
+    messageForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        try {
+            const response = await fetch(window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            const data = await response.json();
+            if (data.status === 'success') {
+                // Add new message to the chat
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message sent';
+                messageDiv.innerHTML = `
+                    ${data.message.image_url ? `<img src="${data.message.image_url}" class="message-image">` : ''}
+                    ${data.message.content ? `<div class="message-content">${data.message.content}</div>` : ''}
+                    <div class="message-time">${data.message.created_at}</div>
+                `;
+                messagesList.appendChild(messageDiv);
+                scrollToBottom();
+                
+                // Clear form
+                this.reset();
+                imagePreview.innerHTML = '';
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+        }
+    });
+
+    // Poll for new messages
+    let lastMessageId = null;
+    async function checkNewMessages() {
+        try {
+            const response = await fetch(`/messages/get-messages/${conversationId}/`);
+            const data = await response.json();
+            
+            const messages = data.messages;
+            if (messages.length > 0 && messages[messages.length - 1].id !== lastMessageId) {
+                // Update messages
+                messagesList.innerHTML = messages.map(message => `
+                    <div class="message ${message.sender_name === currentUser ? 'sent' : 'received'}">
+                        ${message.image_url ? `<img src="${message.image_url}" class="message-image">` : ''}
+                        ${message.content ? `<div class="message-content">${message.content}</div>` : ''}
+                        <div class="message-time">
+                            ${message.created_at}
+                            ${message.sender_name === currentUser && message.is_read ? '<span class="read-status">Read</span>' : ''}
+                        </div>
+                    </div>
+                `).join('');
+                
+                lastMessageId = messages[messages.length - 1].id;
+                scrollToBottom();
+            }
+        } catch (error) {
+            console.error('Error checking messages:', error);
+        }
+    }
+
+    // Check for new messages every 5 seconds
+    setInterval(checkNewMessages, 5000);
+});
+</script>
+{% endblock %}
