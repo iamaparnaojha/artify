@@ -1,9 +1,7 @@
-# Django Social Media App
+# Artify
 
 A full-stack social media web application built with **Python Django** and a **modern, responsive UI**.  
 Users can create posts, follow other users, like and comment, manage their profiles, and interact in a clean, Instagram/Twitter-style interface.
-
-> _Feel free to rename the project anywhere in this README to match your repo name._
 
 ---
 
